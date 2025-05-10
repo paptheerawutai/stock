@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>อัปโหลด QR Image → ดึงข้อมูล</title>
+  <script src="https://unpkg.com/jsqr"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f1f1f1;
+      border: 1px solid #ccc;
+    }
+    canvas {
+      display: none;
+    }
+    input {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>📁 อัปโหลดรูป QR Code</h2>
+<input type="file" accept="image/*" onchange="handleFile(event)">
+<canvas id="canvas"></canvas>
+<div id="result">ยังไม่มีข้อมูล</div>
+
+<script>
+  function getTimeNow() {
+    const now = new Date();
+    return now.toLocaleString('th-TH', {
+      dateStyle: 'short',
+      timeStyle: 'medium'
+    });
+  }
+
+  function fetchPersonData(url) {
+    fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url))
+      .then(response => response.json())
+      .then(data => {
+        const html = data.contents;
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+
+        const tds = doc.querySelectorAll("td");
+        const nameTH = tds[1]?.textContent.trim();
+        const code = tds[5]?.textContent.trim();
+        const position = tds[7]?.textContent.trim();
+
+        document.getElementById("result").innerHTML = `
+          ✅ <strong>ข้อมูลจาก QR (${getTimeNow()})</strong><br><br>
+          🔗 URL: <a href="${url}" target="_blank">${url}</a><br><br>
+          👤 ชื่อ: ${nameTH}<br>
+          🆔 รหัสพนักงาน: ${code}<br>
+          💼 ตำแหน่ง: ${position}
+        `;
+      })
+      .catch(err => {
+        document.getElementById("result").textContent = "❌ โหลดข้อมูลจากลิงก์ไม่สำเร็จ";
+        console.error(err);
+      });
+  }
+
+  function handleFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const img = new Image();
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      img.onload = function() {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+        if (code) {
+          const qrData = code.data;
+          document.getElementById("result").innerHTML = `🔍 ตรวจพบ QR: ${qrData}<br>กำลังโหลดข้อมูล...`;
+          fetchPersonData(qrData);
+        } else {
+          document.getElementById("result").innerHTML = "❌ ไม่พบ QR Code ในภาพ";
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+</script>
+
+</body>
+</html>

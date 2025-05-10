@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style-history.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
+  <title>ประวัติการเบิกของ</title>
+</head>
+<body>
+
+  <!-- ✅ Navbar -->
+  <div class="navbar">
+    <div class="logo">📦 ระบบเบิกอุปกรณ์</div>
+    <nav>
+      <a href="index.html">หน้าเลือกสินค้า</a>
+      <a href="checkout.html">ยืนยันการเบิก</a>
+      <a href="history.html">ประวัติการเบิก</a>
+    </nav>
+  </div>
+
+  <h1>📦 ประวัติการเบิกของ</h1>
+  <div id="history">กำลังโหลด...</div>
+
+  <script>
+    const API_URL = '/api/checkout';
+    const PRODUCTS_URL = '/api/products';
+    let products = [];
+
+    // โหลดข้อมูลสินค้า
+    fetch(PRODUCTS_URL)
+      .then(res => res.json())
+      .then(data => {
+        products = data;
+        loadHistory();
+      })
+      .catch(err => {
+        console.error('โหลดสินค้าไม่สำเร็จ', err);
+        document.getElementById('history').innerHTML = '❌ โหลดสินค้าไม่สำเร็จ';
+      });
+
+    function loadHistory() {
+      fetch(API_URL)
+        .then(res => {
+          if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ');
+          return res.json();
+        })
+        .then(data => {
+          const historyDiv = document.getElementById('history');
+          historyDiv.innerHTML = '';
+
+          if (data.length === 0) {
+            historyDiv.innerHTML = '<p>ยังไม่มีประวัติการเบิก</p>';
+            return;
+          }
+
+          data.forEach(entry => {
+            const div = document.createElement('div');
+            div.classList.add('entry');
+
+            div.innerHTML = `
+              <div class="user">👤 ${entry.userInfo.name} (${entry.userInfo.id})</div>
+              <div class="meta">
+                🕓 ${new Date(entry.time).toLocaleString()} |
+                🏭 แผนก: ${entry.userInfo.department} |
+                📍 ใช้ที่: ${entry.userInfo.address} |
+                🔖 ประเภท: ${entry.userInfo.type}
+              </div>
+              <div class="cart">
+                <strong>🛒 รายการที่เบิก:</strong>
+                ${entry.cart.map(item => {
+                  const product = products.find(p => p.id == item.product_id);
+                  const image = product?.image || 'image/default.png';
+                  const name = product?.name || `ID: ${item.product_id}`;
+                  return `
+                    <div class="cart-item">
+                      <img src="${image}" alt="${name}" style="width:60px;height:auto;border-radius:5px;margin-right:10px;">
+                      <span>${name} - จำนวน: ${item.quantity}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+            historyDiv.appendChild(div);
+          });
+        })
+        .catch(err => {
+          document.getElementById('history').innerHTML = `<p style="color:red;">❌ เกิดข้อผิดพลาดในการโหลดข้อมูล</p>`;
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout</title>
+  <link rel="stylesheet" href="style1.css">
+  <link rel="stylesheet" href="style-history.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- ✅ Navbar -->
+  <div class="navbar">
+    <div class="logo">📦 ระบบเบิกอุปกรณ์</div>
+    <nav>
+      <a href="index.html">หน้าเลือกสินค้า</a>
+      <a href="checkout.html">ยืนยันการเบิก</a>
+      <a href="history.html">ประวัติการเบิก</a>
+    </nav>
+  </div>
+  <div class="container">
+    <div class="checkoutLayout">
+
+      <!-- 🔄 ตะกร้า -->
+      <div class="returnCart">
+        <!-- <a href="index.html">Back Store</a> -->
+        <h1>List Product in Cart</h1>
+        
+        <!-- ✅ ต้องมี เพื่อให้ checkout.js ใช้ได้ -->
+        <div class="list"></div>
+      </div>
+
+      <!-- 🔄 ฟอร์มเบิก -->
+      <div class="right">
+        <h1>รายการขอเบิกอุปกรณ์</h1>
+
+        <div class="form">
+          <div class="group">
+            <label for="name">ชื่อผู้ขอ</label>
+            <input type="text" id="name" placeholder="ชื่อผู้ขอ">
+          </div>
+
+          <div class="group">
+            <label for="ID">รหัสพนักงาน</label>
+            <input type="text" id="ID" placeholder="รหัสพนักงาน">
+          </div>
+
+          <div class="group">
+            <label for="address">นำไปใช้ที่</label>
+            <input type="text" id="address" placeholder="สถานที่ใช้งาน">
+          </div>
+
+          <div class="group">
+            <label for="country">แผนก</label>
+            <select id="country">
+              <option value="">เลือก..</option>
+              <option value="Automation">Automation</option>
+              <option value="Manternan">Manternan</option>
+              <option value="Production">Production</option>
+            </select>
+          </div>
+
+          <div class="group">
+            <label for="CT">เบิก - ยืม</label>
+            <select id="CT">
+              <option value="">เลือก..</option>
+              <option value="เบิก">เบิก</option>
+              <option value="ยืม">ยืม</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 🔢 จำนวนรวม -->
+        <div class="return">
+          <div class="row">
+            <div>Total Quantity</div>
+            <div class="totalQuantity">0</div>
+          </div>
+          
+        </div>
+
+        <!-- ✅ ปุ่มส่งข้อมูล -->
+        <button class="buttonCheckout">ยืนยันการเบิก</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="checkout.js"></script>
+</body>
+</html>

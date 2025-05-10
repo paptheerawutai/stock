@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Reader</title>
+  <script src="https://unpkg.com/jsqr"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    canvas { display: none; }
+    #result { margin-top: 20px; background: #f9f9f9; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+<h2>📷 อัปโหลดภาพ QR Code</h2>
+<input type="file" accept="image/*" onchange="readQR(event)">
+<canvas id="qr-canvas"></canvas>
+<div id="result">รออัปโหลด...</div>
+
+<script>
+function readQR(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const img = new Image();
+  const canvas = document.getElementById("qr-canvas");
+  const ctx = canvas.getContext("2d");
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    img.onload = function() {
+      canvas.width = img.width;
+      canvas.height = img.height;
+      ctx.drawImage(img, 0, 0);
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, canvas.width, canvas.height);
+
+      if (code) {
+        document.getElementById("result").innerHTML = `
+          ✅ QR อ่านได้:<br>
+          <a href="${code.data}" target="_blank">${code.data}</a>
+        `;
+        console.log("QR result:", code.data);
+      } else {
+        document.getElementById("result").innerText = "❌ ไม่พบ QR ในภาพ";
+        console.warn("QR decode failed");
+      }
+    };
+    img.onerror = () => alert("❌ โหลดภาพไม่สำเร็จ");
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
